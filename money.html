@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Manager</title>
+  
+  <style>
+   p{
+    margin-bottom: 0;
+    margin-top:0;
+   }
+
+   .m-head{
+    font-weight: bold;
+    margin-bottom: 5px;
+   }
+
+   .m-amt{
+    display:block;
+    padding-right:150px;
+    padding-left:5px;
+    padding-top: 5px;
+    padding-bottom: 5px;;
+    margin-bottom: 15px;
+   }
+
+   .add-cat{
+    font-weight: bold;
+    font-size: 17px;
+   }
+  </style>
+</head>
+<body>
+  <h2>
+    Monthly Budget Tracker
+  </h2>
+  <p class="m-head">
+    Monthly income (in Rs)
+  </p>
+  <input class="m-amt" type="text" placeholder="Enter your monthly amount">
+  <p class="add-cat">
+    Add Category
+  </p>
+  <input type="text" placeholder="Enter Category">
+  <input type="text" placeholder="Enter alloted budget">
+  <button>
+    Add
+  </button>
+  <p>
+    Your Categories
+  </p>
+  <p>
+    Total Budgeted: Rs
+  </p>
+  <p>
+    Remaining Budget: Rs 
+  </p>
+  <button>
+    Start Tracking
+  </button>
+</body>
+</html>

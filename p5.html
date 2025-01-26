@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Manager</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4e1d2;
+      color: #5e4632;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #d3b8a3;
+      border-radius: 10px;
+      background-color: #fff7f0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: #5e4632;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+    
+    .m-head {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #805d3a;
+    }
+    
+    .m-amt {
+      display: block;
+      width: 80%;
+      max-width: 300px;
+      padding: 10px;
+      margin: 10px auto 20px;
+      border: 1px solid #d3b8a3;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #5e4632;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .add-cat {
+      font-weight: bold;
+      font-size: 17px;
+      color: #805d3a;
+      margin-top: 20px;
+    }
+
+    input[type="text"] {
+      display: block;
+      width: 80%;
+      max-width: 300px;
+      padding: 10px;
+      margin: 10px auto;
+      border: 1px solid #d3b8a3;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #5e4632;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #b6855e;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 10px auto;
+    }
+
+    button:hover {
+      background-color: #9c6d4c;
+    }
+
+    p:last-of-type {
+      font-weight: bold;
+      color: #4f3b24;
+    }
+
+    .category-list {
+      margin-top: 20px;
+      text-align: left;
+      display: inline-block;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .category-item {
+      border: 1px solid #d3b8a3;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    .remove-btn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #expense-section {
+      display: none;
+    }
+
+    .category-details {
+      margin-top: 20px;
+      text-align: left;
+      display: inline-block;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .category-detail-item {
+      border: 1px solid #d3b8a3;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="budget-setup-section">
+    <h2>Monthly Budget Tracker</h2>
+
+    <p class="m-head">Monthly income (in Rs)</p>
+    <input class="m-amt" type="text" id="income" placeholder="Enter your monthly amount">
+
+    <p class="add-cat">Add Category</p>
+    <input type="text" id="category-name" placeholder="Enter Category">
+    <input type="text" id="category-budget" placeholder="Enter allotted budget">
+    <button id="add-category-btn">Add</button>
+
+    <p>Your Categories</p>
+    <div id="category-list" class="category-list"></div>
+
+    <p>Total Budgeted: Rs <span id="total-budget">0</span></p>
+    <p>Remaining Budget: Rs <span id="remaining-budget">0</span></p>
+    <button id="start-tracking-btn" disabled>Start Tracking</button>
+  </div>
+
+  <div class="container" id="expense-section">
+    <h2>Expense Tracker</h2>
+    <p class="add-cat">Add Expense</p>
+
+    <!-- Category Dropdown -->
+    <select id="expense-category" style="width: 80%; max-width: 300px; padding: 10px;">
+      <option value="">Select Category</option>
+    </select>
+    <input type="text" id="expense-amount" placeholder="Enter Amount">
+    <button id="add-expense-btn">Add Expense</button>
+
+    <p>Your Categories with Budget Details</p>
+    <div id="category-details" class="category-details"></div>
+  </div>
+
+  <script>
+    let monthlyIncome = 0;
+    let categories = [];
+    let expenses = [];
+
+    // Update the total budgeted and remaining budget
+    function updateBudget() {
+      const totalBudgeted = categories.reduce((total, cat) => total + parseFloat(cat.budgeted), 0);
+      const remainingBudget = monthlyIncome - totalBudgeted;
+
+      document.getElementById("total-budget").innerText = totalBudgeted;
+      document.getElementById("remaining-budget").innerText = remainingBudget;
+
+      if (monthlyIncome > 0 && categories.length > 0) {
+        document.getElementById("start-tracking-btn").disabled = false;
+      } else {
+        document.getElementById("start-tracking-btn").disabled = true;
+      }
+
+      // Update the category dropdown in the expense section
+      const categorySelect = document.getElementById("expense-category");
+      categorySelect.innerHTML = '<option value="">Select Category</option>'; // Reset options
+      categories.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat.name;
+        option.innerText = cat.name;
+        categorySelect.appendChild(option);
+      });
+
+      // Update category details in the expense section
+      const categoryDetails = document.getElementById("category-details");
+      categoryDetails.innerHTML = ""; // Clear existing details
+
+      categories.forEach(cat => {
+        const categoryDetailItem = document.createElement("div");
+        categoryDetailItem.classList.add("category-detail-item");
+        categoryDetailItem.innerHTML = `
+          ${cat.name} - ₹${cat.budgeted} allotted, ₹${cat.spent} spent, ₹${cat.budgeted - cat.spent} remaining
+        `;
+        categoryDetails.appendChild(categoryDetailItem);
+      });
+    }
+
+    // Add new category
+    document.getElementById("add-category-btn").addEventListener("click", () => {
+      const categoryName = document.getElementById("category-name").value;
+      const categoryBudget = parseFloat(document.getElementById("category-budget").value);
+
+      if (categoryName && categoryBudget > 0) {
+        categories.push({ name: categoryName, budgeted: categoryBudget, spent: 0 });
+        const categoryList = document.getElementById("category-list");
+
+        const categoryItem = document.createElement("div");
+        categoryItem.classList.add("category-item");
+        categoryItem.innerHTML = `${categoryName} - ₹${categoryBudget}`;
+
+        categoryList.appendChild(categoryItem);
+        document.getElementById("category-name").value = "";
+        document.getElementById("category-budget").value = "";
+
+        updateBudget();
+      }
+    });
+
+    // Update monthly income
+    document.getElementById("income").addEventListener("input", (e) => {
+      monthlyIncome = parseFloat(e.target.value);
+      updateBudget();
+    });
+
+    // Start tracking button logic
+    document.getElementById("start-tracking-btn").addEventListener("click", () => {
+      document.getElementById("budget-setup-section").style.display = "none";
+      document.getElementById("expense-section").style.display = "block";
+    });
+
+    // Add new expense
+    document.getElementById("add-expense-btn").addEventListener("click", () => {
+      const expenseCategory = document.getElementById("expense-category").value;
+      const expenseAmount = parseFloat(document.getElementById("expense-amount").value);
+
+      if (expenseCategory && expenseAmount > 0) {
+        const category = categories.find(cat => cat.name === expenseCategory);
+        category.spent += expenseAmount;
+        expenses.push({ category: expenseCategory, amount: expenseAmount });
+
+        // Update category details in the expense section after adding the expense
+        updateBudget();
+
+        // Reset expense fields
+        document.getElementById("expense-category").value = "";
+        document.getElementById("expense-amount").value = "";
+      }
+    });
+  </script>
+</body>
+</html>
